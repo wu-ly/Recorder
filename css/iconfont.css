@@ -1,0 +1,33 @@
+
+@font-face {font-family: "iconfont";
+  src: url('../fonts/iconfont.ttf') format('truetype');
+ }
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-lubricate:before { content: "\e676"; }
+
+.icon-inspect:before { content: "\e831"; }
+
+.icon-add:before { content: "\e61e"; }
+
+.icon-task:before { content: "\e634"; }
+
+.icon-alarm:before { content: "\e62a"; }
+
+.icon-scan:before { content: "\e7b7"; }
+
+.icon-safety:before { content: "\e7b8"; }
+
+.icon-maintain:before { content: "\e667"; }
+
+.icon-record:before { content: "\e600"; }
+
+.icon-sparepart:before { content: "\e613"; }
+
