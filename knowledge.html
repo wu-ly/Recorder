@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav" id="header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title mui-pull-left" id="title"></h1>
+		</header>
+
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			// 这个页面应该只需要一个框架，利用子页面来加载内容
+			mui.init({
+			    subpages:[{
+				  	url:'datas/5s.html',
+				  	id:'5s',
+				  	styles:{
+				    	top:'45px',
+						bottom:'0px'
+					}
+			    }]
+			  });
+		</script>
+	</body>
+
+</html>

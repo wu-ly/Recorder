@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+		<style type="text/css">
+			img{
+				width: 72px;
+				height: 72px;
+			}
+			
+			textarea{
+				border: 0px;
+				height: 80px;
+				font-size: 14px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">添加记录</h1>
+		    <a class="mui-btn mui-btn-link mui-pull-right" onclick="onSubmit();">提交</a>
+		</header>
+		<div style="margin-top: 45px;">
+			<ul id="imagelist" class="mui-table-view mui-grid-view">
+				<li class="mui-table-view-cell mui-media mui-col-xs-3 mui-col-sm-2">
+					<img src="img/add.png" onclick="onAddImage(document.getElementById('imagelist'));" />
+				</li>
+			</ul>
+			<div>
+				<textarea placeholder="请描述您看到的现象" id="comment"></textarea>
+			</div>	
+			
+			<ul class="mui-table-view mui-table-view-radio">
+				<li class="mui-table-view-cell" id="1">
+					<a class="mui-navigate-right">早班</a>
+				</li>
+				<li class="mui-table-view-cell" id="2">
+					<a class="mui-navigate-right">中班</a>
+				</li>
+				<li class="mui-table-view-cell" id="3">
+					<a class="mui-navigate-right">晚班</a>
+				</li>
+				<li class="mui-table-view-cell  mui-selected" id="4">
+					<a class="mui-navigate-right">日班</a>
+				</li>
+			</ul>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="app.js" ></script>
+		<script type="text/javascript">
+			mui.init({
+				gestureConfig:{ 
+					longtap : true
+				}
+			});
+			
+			var server = null;
+			var task_type = null; // 任务的类型
+			var task_id = null; // 记录的id，方便添加记录
+			var selected_class = null; // 选择的班次
+			var description = null; // 描述信息
+			var submit_time = null;// 提交时间
+			var submitter = null; // 提交用户id
+			
+			var list_id = null; // 任务列表的id,添加记录成功需要删除
+			
+			document.addEventListener("plusready",function(){
+				server = plus.storage.getItem("server");
+				submitter = plus.storage.getItem("user");
+				var self = plus.webview.currentWebview();
+				task_type = self.task_type;
+				task_id = self.task_id;
+				list_id = self.list_id;
+			},false);
+			
+			// 选择班次
+			var list = document.querySelector('.mui-table-view.mui-table-view-radio');
+			list.addEventListener('selected',function(e){
+				selected_class = e.detail.el.id;
+			});
+			
+			// 提交数据
+			function onSubmit(){
+				var timer = null;// 60秒提交不完成定义为提交失败
+				var images = []; // 图片数据
+				// 获取图片数据
+				var list = document.getElementById("imagelist");
+				for (var i = 0; i < list.children.length - 1; i++) {
+					var li = list.children[i];
+					var img = li.firstChild;
+					images.push(img.src);	
+				}
+				
+				// 其他数据
+				description = document.getElementById("comment").value;
+				
+				if(images.length == 0 && description == ""){
+					mui.toast("提交内容不能为空",{ duration:'long', type:'div' });
+					return;
+				}
+				
+				submit_time = getNowFormatDate();
+				
+				// 上传数据
+				var task = plus.uploader.createUpload( "http://" + server + "/api/app/SubmitRecord", 
+					{ method:"POST",blocksize:-1,priority:100,timeout:30,retry:0 },
+					function ( upload, status ) {
+						if ( status == 200 ) { 
+							clearTimeout(timer);
+							plus.nativeUI.closeWaiting();
+							// 上传数据成功，返回到我的任务界面,并刷新任务界面
+							var detail = plus.webview.getWebviewById("taskdetail.html");
+							plus.webview.close(detail); // 必须关闭此页面，否则下次进入时plusready不进入
+							var main = plus.webview.getWebviewById("task_frm.html");
+							mui.fire(main,"onAddRecord",{id:list_id});
+							mui.back();
+							mui.openWindow({
+							    url:'index.html',
+							    extras:{
+							        
+							    }
+							});
+						} else {
+							clearTimeout(timer);
+							plus.nativeUI.closeWaiting();
+							mui.toast("提交数据失败，检查网络连接",{ duration:'long', type:'div' });
+						}
+					}
+				);
+				
+				for (var i=0;i<images.length;i++) {
+					task.addFile( images[i], {key:i} );
+				}
+				
+				task.addData( "submit_type", "0" );
+				task.addData( "user_id", submitter );
+				task.addData( "task_type", "" + task_type );
+				task.addData( "task_id", "" + task_id );
+				task.addData( "class", selected_class );
+				task.addData( "description", description );
+				task.addData( "time", submit_time );
+
+				task.start();
+				// 自定义timer ,60秒没有提交成功，定义为提交失败
+				timer = setTimeout(function(){
+					plus.nativeUI.closeWaiting();
+					mui.toast("提交数据失败，检查网络连接",{ duration:'long', type:'div' });
+					task.abort();
+					clearTimeout(timer);
+				},60000);
+				plus.nativeUI.showWaiting("数据提交中，请稍后...");
+			}
+			
+		</script>
+	</body>
+
+</html>

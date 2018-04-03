@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+		<style type="text/css">
+			.foot-area {
+				display: block;
+				margin-top: 15px;
+				text-align: center;
+				color: #ACACB4;
+				font-size: 14px;
+			}
+			.link-area {
+				display: block;
+				margin-top: 25px;
+				text-align: center;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title mui-pull-left" id="title">设备管理系统</h1>
+		</header>
+		<div class="mui-content">		
+			<form class="mui-input-group" style="margin-top: 120px; margin-left: 10px;margin-right: 10px;">
+			    <div class="mui-input-row">
+			        <label>用户名</label>
+			    	<input id="username" type="text" class="mui-input-clear" placeholder="请输入用户名">
+			    </div>
+			    <div class="mui-input-row">
+			        <label>密码</label>
+			        <input id="password" type="password" class="mui-input-password" placeholder="请输入密码">
+			    </div>
+			</form>
+			<div class="mui-content-padded">
+			    <button type="button" class="mui-btn mui-btn-block mui-btn-primary" onclick="onLogin();">登录</button>
+			    <div class="link-area">
+			    	<a onclick="onForgetPassword();">忘记密码</a> 
+			    	<span class="spliter" style="color: #929292;">|</span> 
+			    	<a onclick="onSetNetwork();">网络设置</a>
+			    </div>    
+			</div>
+		</div>
+		<div class="mui-bar mui-bar-tab">
+			<p class="foot-area">copyright © 三维直点，all rights reserved.</p>
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			mui.init();
+
+			function onLogin(){
+				var username = document.getElementById("username").value;
+				var password = document.getElementById("password").value;
+				login(username,password);
+			}	
+			
+			// 忘记密码
+			function onForgetPassword(){
+				
+			}
+			
+			// 设置连接服务器网络
+			function onSetNetwork(){
+				mui.openWindow({
+				    url:"setserver.html",
+				    extras:{
+				    }
+				});
+			}
+			
+			// 登录，成功返回用户id，用户名错误0，密码错误-1
+			function login(username,password){
+				var server = plus.storage.getItem("server");
+				mui.ajax("http://" + server + "/api/app/Login",{
+				    data:{
+				        username:username, 
+				        password:password
+				    },
+				    dataType:"json",
+				    type:"get",
+				    timeout:15000,
+				    success:function(data){
+				    	if(data > 0){
+				    		plus.storage.setItem("login","1"); // 设置登陆标记，下次免登陆
+							plus.storage.setItem("user","" + data); // 记录登陆用户id
+							plus.storage.setItem("username",username);
+							plus.storage.setItem("password",password);
+							mui.openWindow({
+							    url:'index.html',
+							    extras:{
+							        name:'index'   
+							    }
+							});
+						}
+						else{
+							plus.storage.setItem("login","0");
+							mui.toast('ERROR 03:登录失败，检查用户名密码是否正确',{ duration:'long', type:'div' });
+						}
+				    },
+				    error:function(xhr,type,errorThrown){
+				    	plus.storage.setItem("login","0");
+						mui.toast('ERROR 04:连接服务器失败，检查网络设置',{ duration:'long', type:'div' });    
+				    }
+				});
+			}
+		</script>
+	</body>
+
+</html>

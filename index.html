@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>Demo</title>
+		<link rel="stylesheet" href="css/mui.min.css" />
+		<link rel="stylesheet" href="css/iconfont.css" />
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav" id="header">
+			<h1 class="mui-title mui-pull-left" id="title">我的任务</h1>
+		</header>
+
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" href="task_frm.html">
+				<span class="mui-icon mui-icon-list"></span>
+				<span class="mui-tab-label">我的任务</span>
+			</a>
+			<a class="mui-tab-item" href="easyrecord_frm.html">
+				<span class="mui-icon mui-icon-camera"></span>
+				<span class="mui-tab-label">随手录</span>
+			</a>
+			<a class="mui-tab-item" href="knowledge_frm.html">
+				<span class="mui-icon mui-icon-help"></span>
+				<span class="mui-tab-label">知识库</span>
+			</a>
+			<a class="mui-tab-item" href="settings_frm.html">
+				<span class="mui-icon mui-icon-gear"></span>
+				<span class="mui-tab-label">设置</span>
+			</a>
+		</nav>
+
+		<script type="text/javascript" src="js/mui.min.js"></script>
+		<script src="app.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init();
+
+			var subpages = ['task_frm.html', 'easyrecord_frm.html', 'knowledge_frm.html','settings_frm.html'];
+			var subpage_style = {
+				top: '45px',
+				bottom: '51px'
+			};
+			
+			var aniShow = {};
+			
+			 //创建子页面，首个选项卡页面显示，其它均隐藏；
+			mui.plusReady(function() {				
+				var self = plus.webview.currentWebview();
+				for (var i = 0; i < 4; i++) {
+					var temp = {};
+					var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
+					if (i > 0) {
+						sub.hide();
+					}else{
+						temp[subpages[i]] = "true";
+						mui.extend(aniShow,temp);
+					}
+					self.append(sub);
+				}
+			});
+			 //当前激活选项
+			var activeTab = subpages[0];
+			var title = document.getElementById("title");
+			 //选项卡点击事件
+			mui('.mui-bar-tab').on('tap', 'a', function(e) {
+				var targetTab = this.getAttribute('href');
+				if (targetTab == activeTab) {
+					return;
+				}
+				//更换标题
+				var submit = document.getElementById("submit");
+				title.innerHTML = this.querySelector('.mui-tab-label').innerHTML;
+				
+				//显示目标选项卡
+				//若为iOS平台或非首次显示，则直接显示
+				if(mui.os.ios||aniShow[targetTab]){
+					plus.webview.show(targetTab);
+				}else{
+					//否则，使用fade-in动画，且保存变量
+					var temp = {};
+					temp[targetTab] = "true";
+					mui.extend(aniShow,temp);
+					plus.webview.show(targetTab,"fade-in",300);
+				}
+				
+				//隐藏当前;
+				plus.webview.hide(activeTab);
+				//更改当前活跃的选项卡
+				activeTab = targetTab;
+			});
+			
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			img{
+				width: 20px;
+				height: 20px;
+				vertical-align: middle;
+			}
+			
+			span{
+				color: #8F8F94;
+				margin-left: 10px;
+				vertical-align: middle;
+			}
+			
+			#group-1,#group-2,#group-3{
+				margin-top: 10px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			<ul class="mui-table-view" id="group-1">
+			    <li class="mui-table-view-cell" id="1">
+			    	<img src="img/1.png" />
+			    	<span>交接班</span>
+			    </li>
+			</ul>
+			
+			<ul class="mui-table-view" id="group-2">
+			    <li class="mui-table-view-cell" id="2">
+			    	<img src="img/2.png" />
+			    	<span>故障</span>
+			    </li>
+			    <li class="mui-table-view-cell" id="3">
+			    	<img src="img/3.png" />
+			    	<span>维修</span>
+			    </li>
+			</ul>
+			
+			<ul class="mui-table-view" id="group-3">
+			    <li class="mui-table-view-cell" id="4">
+			    	<img src="img/4.png" />
+			    	<span>点巡检</span>
+			    </li>
+			    <li class="mui-table-view-cell" id="5">
+			    	<img src="img/5.png" />
+			    	<span>润滑</span>
+			    </li>
+			    <li class="mui-table-view-cell" id="6">
+			    	<img src="img/6.png" />
+			    	<span>备件</span>
+			    </li>
+			</ul>
+			
+			<ul class="mui-table-view" id="group-1">
+			    <li class="mui-table-view-cell" id="20">
+			    	<img src="img/other.png" />
+			    	<span>其他</span>
+			    </li>
+			</ul>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			
+			// 为li绑定点击事件
+			var lis = document.getElementsByTagName("li");
+			for (var i=0;i<lis.length;i++) {
+				lis[i].addEventListener("tap",function(){
+					mui.openWindow({
+					    url:"easyrecord.html",
+					    extras:{
+					        name: this.innerText,
+					        type: this.id 
+					    }
+					});
+				});
+			}
+			
+			// 添加记录成功回调
+			window.addEventListener("onAddRecord",function(e){
+				mui.toast("添加记录成功",{ duration:'long', type:'div' });
+			});
+			
+		</script>
+	</body>
+
+</html>

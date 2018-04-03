@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			.search-box{
+				margin-top: 4px;
+				margin-left: 5px;
+				margin-right: 5px;
+				height: 40px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mui-indexed-list-search mui-input-row mui-search search-box">
+			<input type="search" id="search-box" class="mui-input-clear mui-indexed-list-search-input" placeholder="搜索" onkeyup="enterSearch(event)">
+		</div>
+		<ul class="mui-table-view" id="k-list">
+		    <!--li class="mui-table-view-cell mui-media" id="1">
+	            <img class="mui-media-object mui-pull-left" src="img/placeholder.png">
+	            <div class="mui-media-body">木屋
+	                <p class="mui-ellipsis">想要这样一间小木屋，夏天挫冰吃瓜，冬天围炉取暖.</p>
+	            </div>
+		    </li>
+		    <li class="mui-table-view-cell mui-media" id="2">
+	            <img class="mui-media-object mui-pull-left" src="img/placeholder.png">
+	            <div class="mui-media-body">CBD
+	                <p class="mui-ellipsis">烤炉模式的城，到黄昏，如同打翻的调色盘一般.</p>
+	            </div>
+		    </li-->
+		</ul>
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			var server = null;
+			
+			function enterSearch(e) {
+			    if(e.keyCode == 13) {
+			    	document.getElementById("search-box").blur();
+			        getKnowledges();
+			    }
+			}
+			
+			document.addEventListener("plusready",function(){
+				server = plus.storage.getItem("server");
+				getKnowledges();	
+			},false);
+			
+			// 获取知识库默认数据
+			function getKnowledges(){
+				var klist = document.getElementById("k-list");
+				
+				mui.ajax("http://" + server + "/api/app/GetKnowledges",{
+				    data:{},
+				    dataType:'json',
+				    type:'get',
+				    timeout:15000,
+				    success:function(data){
+				    	var html = "";
+			        	for (var i=0;i<data.length;i++) {
+			        		var know = data[i];
+			        		html += _addItem(know.ID,know.Image,know.Title,know.Description);
+			        	}
+			        	
+			        	klist.innerHTML = html;
+			        	// 为li绑定点击事件
+						var lis = document.getElementsByTagName("li");
+						for (var i=0;i<lis.length;i++) {
+							lis[i].addEventListener("tap",function(){
+								// this.id
+								mui.openWindow({
+								    url:'knowledge.html',
+								    extras:{
+								        
+								    }
+								});
+							});
+						}
+				    },
+				    error:function(xhr,type,errorThrown){
+						//
+				    }
+				});
+			}
+			
+			// 添加知识项目列表
+			function _addItem(id,img,title,description){
+				var item = '<li class="mui-table-view-cell mui-media"' + 'id="' + id + '">';
+				item += '<img class="mui-media-object mui-pull-left"' + 'src="' + img + '">';
+				item += '<div class="mui-media-body">' + title;
+				item += '<p class="mui-ellipsis">' + description + '</p>';
+				item += '</div>';
+				item += '</li>';
+				
+				return item;
+			}
+
+		</script>
+	</body>
+
+</html>

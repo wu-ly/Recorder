@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title mui-pull-left" id="title">设置服务器信息</h1>
+		</header>
+		<div class="mui-content">		
+			<form class="mui-input-group">
+			    <div class="mui-input-row">
+			        <label>IP地址</label>
+			    	<input id="ip" type="text" class="mui-input-clear" placeholder="127.0.0.1">
+			    </div>
+			    <div class="mui-input-row">
+			        <label>端口</label>
+			        <input id="port" type="number" class="mui-input-clear" placeholder="8080">
+			    </div>
+			</form>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			mui.init({
+				beforeback: function(){
+					var ip = document.getElementById("ip").value;
+					var port = document.getElementById("port").value;
+					plus.storage.setItem("server",ip + ":" + port);
+					// 通知设置界面信息更新
+					var settings = plus.webview.getWebviewById('settings.html');  
+			        mui.fire(settings, 'refresh'); 
+				}
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+		<style type="text/css">
+			*{
+				-webkit-user-select: none;
+			}
+			
+			#scan-rect{
+				background: #000;
+				width: 100%;
+				height: 420px;		
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">二维码/条码</h1>
+		</header>
+
+    	<div class="mui-content">
+    		<div id="scan-rect">
+    		</div>
+			<ul class="mui-table-view" style="margin-top: 5px;">
+				<li class="mui-table-view-cell">
+					<span>闪光灯</span>
+					<div class="mui-switch" id="light_switch">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</li>
+			</ul>
+    	</div>
+
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			// 扫描二维码
+			var scan = null;
+			var ws = null;
+			
+			mui.init();
+			mui.plusReady(function(){
+				document.getElementById("light_switch").addEventListener("toggle",function(event){
+					scan.setFlash(event.detail.isActive);
+				});
+				
+				ws = plus.webview.currentWebview();
+				ws.addEventListener("show",function(){
+					scan = new plus.barcode.Barcode("scan-rect");
+					scan.onmarked = onmarked;
+					scan.start();
+				});
+			})
+			
+			// 扫描识别成功回调
+			// result为识别数据结果
+			// 识别码定义格式为：id;name.如 SP26.1;浸渍器单元
+			function onmarked( type, result ) {
+				if(result != null){
+					var id_name = result.split(";");
+					if(id_name.length != 2){
+						alert("识别错误，非设备码");
+						scan.start();
+					}else{
+						var _id = id_name[0];
+						var _name = id_name[1];
+						var main = plus.webview.currentWebview().opener();
+						
+						mui.fire(main,"onSelected",{type:"scan",id:_id,name:_name});
+						ws.close();
+						mui.back();
+					}
+				}
+			}
+			
+		</script>
+	</body>
+
+</html>

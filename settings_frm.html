@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			.no-action{
+				color: #999999;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell no-action">用户名
+			        <span class="mui-pull-right" id="user">#</span>
+			    </li>
+			    <li class="mui-table-view-cell no-action">连接模式
+			        <span class="mui-pull-right" id="login">离线</span>
+			    </li>    
+			</ul>
+			
+			<ul class="mui-table-view" style="margin-top: 10px;">
+				<li class="mui-table-view-cell" onclick="onSetServer();">服务器
+			        <span id="server" class="mui-pull-right no-action" id="server">127.0.0.1:8080</span>
+			    </li>
+			    <li class="mui-table-view-cell">
+					<span>接收任务推送</span>
+					<div class="mui-switch mui-active">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</li>
+				<li class="mui-table-view-cell" onclick="onLogout();">退出登录</li>
+				<li class="mui-table-view-cell">关于</li>
+			</ul>
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+			mui.init();
+			
+			document.addEventListener("plusready",function(){
+				var user = plus.storage.getItem("username");
+				var login = plus.storage.getItem("login");
+				var server = plus.storage.getItem("server");
+				
+				if(user != null){
+					document.getElementById("user").innerText = user;
+				}
+				
+				if(login != null){
+					if(login == 1)
+						document.getElementById("login").innerText = "在线";
+					else
+						document.getElementById("login").innerText = "离线";
+				}
+				
+				if(server != null){
+					document.getElementById("server").innerText = server;
+				}
+			},false);
+			
+			
+			// 设置服务器完成刷新事件
+			window.addEventListener('refresh', function(e) {
+				var server = plus.storage.getItem("server");
+			    document.getElementById("server").innerText = server;
+			});
+			
+			// 设置服务器信息，IP，port
+			function onSetServer(){
+				mui.openWindow({
+				    url:'setserver.html',
+				    extras:{
+				        name:'setserver'   
+				    }
+				});
+			}
+			
+			// 退出登陆，返回到登陆界面
+			function onLogout(){
+				plus.storage.setItem("login","0");
+				mui.openWindow({
+				    url:'login.html',
+				    extras:{
+				    }
+				});
+			}
+		</script>
+	</body>
+
+</html>

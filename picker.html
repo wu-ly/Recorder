@@ -1,0 +1,94 @@
+<!--
+	作者：wly_83@126.com
+	时间：2018-02-08
+	设备列表数据参考data.js;二级结构即可
+-->
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <h1 class="mui-title">选择记录关联设备</h1>
+		</header>
+		<div style="margin-top: 45px;">
+			<ul class="mui-table-view mui-table-view-chevron" id="list">
+				<!--li class="mui-table-view-cell mui-collapse"><a class="mui-navigate-right" href="#">产品</a>
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell">iOS
+						</li>
+						<li class="mui-table-view-cell">Android
+						</li>
+						<li class="mui-table-view-cell">HTML5
+						</li>
+					</ul>
+				</li>
+				<li class="mui-table-view-cell mui-collapse"><a class="mui-navigate-right" href="#">方案</a>
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell"><a class="mui-navigate-right" href="#">PC方案</a>
+						</li>
+						<li class="mui-table-view-cell"><a class="mui-navigate-right" href="#">手机方案</a>
+						</li>
+						<li class="mui-table-view-cell"><a class="mui-navigate-right" href="#">TV方案</a>
+						</li>
+					</ul>
+				</li>
+				<li class="mui-table-view-cell mui-collapse"><a class="mui-navigate-right" href="#">新闻</a>
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell"><a class="mui-navigate-right" href="#">公司新闻</a>
+						</li>
+						<li class="mui-table-view-cell"><a class="mui-navigate-right" href="#">行业新闻</a>
+						</li>
+					</ul>
+				</li-->
+			</ul>
+		</div>
+	    
+		<script src="js/mui.min.js"></script>
+		<script src="data.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init();
+			
+			// 获取设备列表
+			var list = document.getElementById("list");
+			
+			for(var i=0;i<elist.length;i++){				
+				var level_1 = document.createElement("li");
+				level_1.classList.add("mui-table-view-cell");
+				level_1.classList.add("mui-collapse");
+				list.appendChild(level_1);
+				var level_1_title = document.createElement("a");
+				level_1_title.classList.add("mui-navigate-right");
+				level_1_title.innerText = elist[i].parent;
+				level_1.appendChild(level_1_title);
+				var level_2 = document.createElement("ul");
+				level_2.classList.add("mui-table-view");
+				level_2.classList.add("mui-table-view-chevron");
+				level_1.appendChild(level_2);
+				
+				for (var j=0;j<elist[i].children.length;j++) {
+					var item = document.createElement("li");
+					item.classList.add("mui-table-view-cell");
+					item.innerText = elist[i].children[j].name;
+					item.id = elist[i].children[j].id;
+					item.addEventListener("tap",function(){
+						// 返回到添加记录页面，并显示关联的节点，以及记录节点ID
+						var main = plus.webview.currentWebview().opener();
+						mui.fire(main,"onSelected",{type:"pick",id:this.id,name:this.innerText});
+						mui.back();
+					});
+					level_2.appendChild(item);
+				}	
+			}
+			
+		</script>
+	</body>
+
+</html>

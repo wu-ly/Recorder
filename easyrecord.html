@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css"/>
+		<link rel="stylesheet" type="text/css" href="app.css"/>
+		<style type="text/css">
+			img{
+				width: 72px;
+				height: 72px;
+			}
+			textarea{
+				border: 0px;
+				height: 80px;
+				font-size: 14px;
+			}
+			span{
+				color: #808080;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav" id="header">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title mui-pull-left" id="title">随手录</h1>
+			<a class="mui-btn mui-btn-link mui-pull-right" onclick="onSubmit();" id="submit">提交</a>
+		</header>
+		<div style="margin-top: 45px;">
+			<ul id="imagelist" class="mui-table-view mui-grid-view">
+				<li class="mui-table-view-cell mui-media mui-col-xs-3 mui-col-sm-2">
+					<img src="img/add.png" onclick="onAddImage(document.getElementById('imagelist'));" />
+				</li>
+			</ul>
+			<div>
+				<textarea placeholder="请描述您看到的现象" id="comment"></textarea>
+			</div>	
+			
+			<div>
+				<h5 class="mui-content-padded">选择记录关联设备</h5>
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell no-action" onclick="onPick();">列表选择
+				        <span class="mui-pull-right" id="pname"></span>
+				    </li>
+				    <li class="mui-table-view-cell no-action" onclick="onScan();">扫码选择
+				        <span class="mui-pull-right" id="sname"></span>
+				    </li>
+				</ul>
+			</div> 
+			
+			<div>
+				<h5 class="mui-content-padded">选择班次</h5>
+				<ul class="mui-table-view mui-table-view-radio">
+					<li class="mui-table-view-cell" id="1">
+						<a class="mui-navigate-right">早班</a>
+					</li>
+					<li class="mui-table-view-cell" id="2">
+						<a class="mui-navigate-right">中班</a>
+					</li>
+					<li class="mui-table-view-cell" id="3">
+						<a class="mui-navigate-right">晚班</a>
+					</li>
+					<li class="mui-table-view-cell mui-selected" id="4">
+						<a class="mui-navigate-right">日班</a>
+					</li>
+				</ul>
+			</div> 
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script src="js/mui.picker.min.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="app.js" ></script>
+		<script type="text/javascript">
+			mui.init({
+				gestureConfig:{ 
+					longtap : true
+				}
+			});
+			
+			var server = null;
+			var record_type = null; // 记录类型
+			var selected_node = null; // 关联节点
+			var selected_class = 4; // 选择的班次 
+			var submitter = null; // 提交用户id
+			var description = null; // 描述信息
+			var submit_time = null;// 提交时间
+			
+			document.addEventListener("plusready",function(){
+				server = plus.storage.getItem("server");
+				submitter = plus.storage.getItem("user");
+				var self = plus.webview.currentWebview();
+				var name = self.name;
+				record_type = self.type;
+				document.getElementById("title").innerText = "添加" + name + "记录";
+			},false);
+
+			// 关联设备选择的回调
+			window.addEventListener("onSelected",function(e){
+				selected_node = e.detail.id;
+
+				if (e.detail.type == "scan") {
+					document.getElementById("sname").innerText = e.detail.name;
+				} else{
+					document.getElementById("pname").innerText = e.detail.name;
+				}
+			});
+			
+			// 选择的班次
+			var list = document.querySelector('.mui-table-view.mui-table-view-radio');
+			list.addEventListener('selected',function(e){
+				selected_class = e.detail.el.id;
+			});
+			
+			function onPick(){
+				mui.openWindow({
+				    url:'picker.html',
+				    extras:{
+				        name:'picker'   
+				    }
+				});
+			}
+			
+			function onScan(){
+				mui.openWindow({
+				    url:'scan.html',
+				    extras:{
+				        name:'scan'   
+				    }
+				});
+			}
+			
+			// 提交数据
+			function onSubmit(){				
+				var timer = null;// 60秒提交不完成定义为提交失败
+				var images = []; // 图片数据
+				// 获取图片数据
+				var list = document.getElementById("imagelist");
+				for (var i = 0; i < list.children.length - 1; i++) {
+					var li = list.children[i];
+					var img = li.firstChild;
+					images.push(img.src);	
+				}
+				
+				// 其他数据
+				description = document.getElementById("comment").value;
+				
+				if(images.length == 0 && description == ""){
+					mui.toast("提交内容不能为空",{ duration:'long', type:'div' });
+					return;
+				}
+				
+				submit_time = getNowFormatDate();
+				
+				// 上传数据
+				var task = plus.uploader.createUpload( "http://" + server + "/api/app/SubmitRecord", 
+					{ method:"POST",blocksize:-1,priority:100,timeout:30,retry:0 }, // timeout 不起作用，原因未知
+					function ( upload, status ) {
+						if ( status == 200 ) { 
+							clearTimeout(timer);
+							plus.nativeUI.closeWaiting();
+							// 上传数据成功，返回到随手录界面
+							var main = plus.webview.getWebviewById("easyrecord_frm.html");
+							mui.fire(main,"onAddRecord",{});
+							mui.back();
+						} else {
+							clearTimeout(timer);
+							plus.nativeUI.closeWaiting();
+							mui.toast("提交数据失败，检查网络连接",{ duration:'long', type:'div' });
+						}
+					}
+				);
+				
+				for (var i=0;i<images.length;i++) {
+					task.addFile( images[i], {key:i} );
+				}
+				
+				task.addData( "submit_type", "1" );
+				task.addData( "user_id", submitter );
+				task.addData( "record_type", "" + record_type );
+				task.addData( "selected_node", selected_node );
+				task.addData( "class", selected_class );
+				task.addData( "description", description );
+				task.addData( "time", submit_time );
+
+				task.start();
+				// 自定义timer ,60秒没有提交成功，定义为提交失败
+				timer = setTimeout(function(){ 
+					plus.nativeUI.closeWaiting();
+					mui.toast("提交数据失败，检查网络连接",{ duration:'long', type:'div' });
+					task.abort();
+					clearTimeout(timer);
+				},60000);
+				plus.nativeUI.showWaiting("数据提交中，请稍后...");
+			}
+		</script>
+	</body>
+
+</html>

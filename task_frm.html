@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style type="text/css">
+			.time-tag{
+				font-size: 12px;
+				color: #BBBBBB;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+		    <ul class="mui-table-view" id="task-list"></ul>   
+		</div>
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript">
+
+			mui.init();
+			var server = null; // 服务器ip:port
+			var userid = null;
+			var count = 0; // 记录任务的条目数，方便添加记录后进行删除
+
+			function plusReady(){	
+				server = plus.storage.getItem("server");
+				userid = plus.storage.getItem("user");
+				var login = plus.storage.getItem("login");
+				if (login == "1"){
+					getMyTask(userid);
+				}else{
+					mui.openWindow({
+					    url:'login.html',
+					    extras:{
+					    }
+					});
+				}
+			}
+			
+			document.addEventListener("plusready",plusReady,false);
+			
+			// 根据登录成功的用户id，获取该用户的任务
+			// task:类型，ID,设备名称，部位，任务时间
+			function getMyTask(userid){				
+				mui.ajax("http://" + server + "/api/app/GetTask",{
+				    data:{
+				        id:userid
+				    },
+				    dataType:'json',
+				    type:'get',
+				    timeout:15000,
+				    success:function(data){
+			        	for (var i=0;i<data.length;i++) {
+			        		var task = data[i];
+			        		_addTask(task.Type,task.ID,task.Equipment,task.Part,task.Time);
+			        	}
+				    },
+				    error:function(xhr,type,errorThrown){
+						//
+				    }
+				});
+			}
+			
+			// 添加记录成功回调
+			window.addEventListener("onAddRecord",function(e){
+				_removeTask(e.detail.id);
+			});
+			
+			// 列表中添加任务项，参数分别为类型，任务id，设备，部位，时间
+	        function _addTask(type,id,object,part,time){
+	       		var list = document.getElementById("task-list");
+	       		var li = document.createElement("li");
+	       		li.id = "" + ++count; // 绑定id,方便删除
+	       		li.classList.add("mui-table-view-cell");
+	       		var a = document.createElement("a");
+	       		
+	       		a.addEventListener('tap',function(){
+	       			mui.openWindow({
+					    url:'taskdetail.html',
+					    extras:{
+					        task_type:type,
+					        task_id:id,
+					        list_id:li.id
+					    }
+					});
+	       		});
+	       		
+	       		var img = document.createElement("img");
+	       		img.classList.add("mui-media-object");
+	       		img.classList.add("mui-pull-left");
+	       		img.src = "img/" + type + ".png";
+	       		a.appendChild(img);
+	       		var div = document.createElement("div");
+	       		div.classList.add("mui-media-body");
+	       		switch(type)
+	       		{
+	       			case 4:div.innerText = "点巡检";break;
+	       			case 5:div.innerText = "润滑";break;
+	       			case 6:div.innerText = "备件";break;
+	       		}
+	       		
+	       		var span = document.createElement("span");
+	       		span.classList.add("mui-pull-right");
+	       		span.classList.add("time-tag");
+	       		span.innerText = time;
+	       		div.appendChild(span);
+	       		var p = document.createElement("p");
+	       		p.classList.add("mui-ellipsis");
+	       		p.innerText = object +"-" + part;
+	       		div.appendChild(p);
+	       		a.appendChild(div);
+	       		li.appendChild(a);
+	       		list.appendChild(li);
+	        }
+	        
+	        // 从列表中删除一个项目
+	        function _removeTask(id){
+	        	var list = document.getElementById("task-list");
+	        	var item = document.getElementById(id);
+	        	list.removeChild(item);
+	        }
+	        
+		</script>
+	</body>
+
+</html>
