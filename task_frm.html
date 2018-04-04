@@ -23,6 +23,7 @@
 		<script type="text/javascript">
 
 			mui.init();
+			
 			var server = null; // 服务器ip:port
 			var userid = null;
 			var count = 0; // 记录任务的条目数，方便添加记录后进行删除
@@ -35,11 +36,30 @@
 					getMyTask(userid);
 				}else{
 					mui.openWindow({
-					    url:'login.html',
+					    url:'login.html'
 					    extras:{
 					    }
 					});
 				}
+				
+				// 首页返回按钮处理
+				mui.back = function(){
+					var first = null;
+	                plus.key.addEventListener('backbutton', function() {
+	                    //首次按键，提示‘再按一次退出应用’
+	                    if (!first) {
+	                        first = new Date().getTime();
+	                        mui.toast('再按一次退出应用');
+	                        setTimeout(function() {
+	                            first = null;
+	                        }, 1000);
+	                    } else {
+	                        if (new Date().getTime() - first < 1000) {
+	                            plus.runtime.quit();
+	                        }
+	                    }
+	                }, false);
+	            }
 			}
 			
 			document.addEventListener("plusready",plusReady,false);

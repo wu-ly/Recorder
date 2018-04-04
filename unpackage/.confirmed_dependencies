@@ -1,0 +1,83 @@
+{
+  "index.html": {
+    "resources": [
+      "task.html",
+      "task_frm.html"
+    ],
+    "refer": [
+      "knowledge.html",
+      "easyrecord.html",
+      "settings.html",
+      "task.html",
+      "easyrecord_frm.html",
+      "settings_frm.html",
+      "knowledge_frm.html",
+      "task_frm.html"
+    ]
+  },
+  "login.html": {
+    "refer": [
+      "index.html",
+      "setserver.html"
+    ],
+    "resources": []
+  },
+  "task.html": {
+    "refer": [
+      "record.html",
+      "taskdetail.html"
+    ],
+    "resources": []
+  },
+  "settings.html": {
+    "refer": [
+      "setserver.html"
+    ],
+    "resources": []
+  },
+  "taskdetail.html": {
+    "refer": [
+      "record.html"
+    ],
+    "resources": []
+  },
+  "easyrecord.html": {
+    "refer": [
+      "picker.html",
+      "test.html",
+      "scan.html"
+    ],
+    "resources": []
+  },
+  "easyrecord_frm.html": {
+    "refer": [
+      "easyrecord.html"
+    ]
+  },
+  "task_frm.html": {
+    "refer": [
+      "taskdetail.html",
+      "login.html"
+    ]
+  },
+  "settings_frm.html": {
+    "refer": [
+      "setserver.html",
+      "login.html"
+    ]
+  },
+  "knowledge_frm.html": {
+    "refer": [
+      "knowledge.html"
+    ]
+  },
+  "knowledge.html": {
+    "resources": [
+      "datas/5s.html"
+    ],
+    "refer": [
+      "datas/5s.html",
+      "datas/pdf.html"
+    ]
+  }
+}

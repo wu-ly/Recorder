@@ -38,6 +38,13 @@
 			        mui.fire(settings, 'refresh'); 
 				}
 			});
+			
+			mui.plusReady(function(){
+				var address = plus.storage.getItem("server");
+				var ip_port = address.split(":");
+				document.getElementById("ip").value = ip_port[0];
+				document.getElementById("port").value = ip_port[1];
+			});
 		</script>
 	</body>
 

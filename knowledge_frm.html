@@ -38,6 +38,26 @@
 		<script src="js/mui.min.js"></script>
 		<script type="text/javascript">
 			mui.init();
+			
+			// 首页返回按钮处理
+			mui.back = function(){
+				var first = null;
+                plus.key.addEventListener('backbutton', function() {
+                    //首次按键，提示‘再按一次退出应用’
+                    if (!first) {
+                        first = new Date().getTime();
+                        mui.toast('再按一次退出应用');
+                        setTimeout(function() {
+                            first = null;
+                        }, 1000);
+                    } else {
+                        if (new Date().getTime() - first < 1000) {
+                            plus.runtime.quit();
+                        }
+                    }
+                }, false);
+            }
+			
 			var server = null;
 			
 			function enterSearch(e) {
@@ -65,7 +85,7 @@
 				    	var html = "";
 			        	for (var i=0;i<data.length;i++) {
 			        		var know = data[i];
-			        		html += _addItem(know.ID,know.Image,know.Title,know.Description);
+			        		html += _addItem(know.Url,know.Image,know.Title,know.Description);
 			        	}
 			        	
 			        	klist.innerHTML = html;
@@ -77,7 +97,7 @@
 								mui.openWindow({
 								    url:'knowledge.html',
 								    extras:{
-								        
+								        list_id:this.id
 								    }
 								});
 							});

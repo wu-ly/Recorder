@@ -25,7 +25,7 @@
 
 	<body>
 		<header class="mui-bar mui-bar-nav">
-			<h1 class="mui-title mui-pull-left" id="title">设备管理系统</h1>
+			<h1 class="mui-title mui-pull-left" id="title">运维管理系统</h1>
 		</header>
 		<div class="mui-content">		
 			<form class="mui-input-group" style="margin-top: 120px; margin-left: 10px;margin-right: 10px;">
@@ -54,6 +54,29 @@
 		<script src="js/mui.min.js"></script>
 		<script type="text/javascript">
 			mui.init();
+			
+			mui.plusReady(function(){
+				mui.back = function(){
+					//首页返回键处理
+	                //处理逻辑：1秒内，连续两次按返回键，则退出应用；
+	                var first = null;
+	                plus.key.addEventListener('backbutton', function() {
+	                    //首次按键，提示‘再按一次退出应用’
+	                    if (!first) {
+	                        first = new Date().getTime();
+	                        mui.toast('再按一次退出应用');
+	                        setTimeout(function() {
+	                            first = null;
+	                        }, 1000);
+	                    } else {
+	                        if (new Date().getTime() - first < 1000) {
+	                            plus.runtime.quit();
+	                        }
+	                    }
+	                }, false);
+				}
+			});
+			
 
 			function onLogin(){
 				var username = document.getElementById("username").value;
@@ -63,7 +86,7 @@
 			
 			// 忘记密码
 			function onForgetPassword(){
-				
+				alert("联系管理员");
 			}
 			
 			// 设置连接服务器网络
